@@ -2,7 +2,7 @@
 const express = require('express'); //** */
 const multer = require('multer');
 const path = require('path');
-const { s3V2 } = require('./app/middlewares/aws-s3');
+const { s3V2, s3v3 } = require('./app/middlewares/aws-s3');
 
 require('dotenv').config();
 
@@ -69,10 +69,29 @@ app.post('/upload_single_field', upload.array('files', 2), (req, res, next) => {
 app.post('/upload_many_fields', uploadMultiple, (req, res, next) => {
   res.send({ message: 'Success' });
 });
-app.post('/upload-s3', upload3.array('files'), async (req, res) => {
-  const file = req.files[0];
-  const result = await s3V2(file);
-  res.json({ message: 'success', result });
+app.post('/upload-s3v2', upload3.array('files'), async (req, res) => {
+  // console.log(req.files);
+  try {
+    // const file = req.files[0];
+    const results = await s3V2(req.files);
+    console.log(results, 'aws bucket upload result');
+    return res.json({ message: 'success' });
+  } catch (err) {
+    console.log(err.message, 'thisisis');
+  }
+});
+
+app.post('/upload-s3v3', upload3.array('files'), async (req, res) => {
+  // const file = req.files[0];
+
+  try {
+    // const file = req.files[0];
+    const results = await s3v3(req.files);
+    console.log(results, 'aws bucket upload result');
+    return res.json({ message: 'success' });
+  } catch (err) {
+    console.log(err.message, 'thisisis');
+  }
 });
 
 app.use('/uploads', express.static(path.join(__dirname, 'public')));
